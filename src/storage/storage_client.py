@@ -5,7 +5,7 @@ import os
 from google.cloud import storage
 
 from config import GCP_BUCKET_NAME, GCP_STORAGE_SERVICE_ACCOUNT
-from storage.storage_exceptions import BlobNotExistException, FileNotExistException
+from src.storage.storage_exceptions import BlobNotExistException, FileNotExistException
 
 
 class StorageClient:
@@ -13,7 +13,8 @@ class StorageClient:
 
     def __init__(self):
         """Initialize a GCS client."""
-        storage_client = storage.Client.from_service_account_info(GCP_STORAGE_SERVICE_ACCOUNT)
+        storage_client = storage.Client.from_service_account_info(
+            GCP_STORAGE_SERVICE_ACCOUNT)
         self._bucket = storage_client.get_bucket(GCP_BUCKET_NAME)
 
     def upload_local_directory_or_file_to_gcs(self, local_path, gcs_path):
@@ -30,16 +31,20 @@ class StorageClient:
             raise FileNotExistException
 
         if os.path.isfile(local_path):
-            self._upload_blob_to_bucket(local_path=local_path, gcs_path=gcs_path)
+            self._upload_blob_to_bucket(
+                local_path=local_path, gcs_path=gcs_path)
 
         else:
             files_or_dirs = os.listdir(local_path)
-            files = [f for f in files_or_dirs if os.path.isfile(os.path.join(local_path, f))]
-            dirs = [d for d in files_or_dirs if os.path.isdir(os.path.join(local_path, d))]
+            files = [f for f in files_or_dirs if os.path.isfile(
+                os.path.join(local_path, f))]
+            dirs = [d for d in files_or_dirs if os.path.isdir(
+                os.path.join(local_path, d))]
 
             # if it is not a file, upload all files that are within that directory and ...
             for f in files:
-                self._upload_blob_to_bucket(local_path=os.path.join(local_path, f), gcs_path=os.path.join(gcs_path, f))
+                self._upload_blob_to_bucket(local_path=os.path.join(
+                    local_path, f), gcs_path=os.path.join(gcs_path, f))
 
             # ... recursively upload all subdirectories
             for d in dirs:
@@ -59,7 +64,8 @@ class StorageClient:
             file_split = blob.name.split("/")
             directory = "/".join(file_split[0:-1])
             os.makedirs(os.path.join(local_path, directory), exist_ok=True)
-            self._download_blob_from_bucket(local_path=os.path.join(local_path, blob.name), gcs_path=blob.name)
+            self._download_blob_from_bucket(local_path=os.path.join(
+                local_path, blob.name), gcs_path=blob.name)
 
     def _upload_blob_to_bucket(self, local_path, gcs_path):
         """Upload data to a bucket."""
