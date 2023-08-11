@@ -5,7 +5,7 @@ import wandb
 
 
 from datasets import load_metric
-from transformers import DataCollatorWithPadding
+from transformers import DataCollatorWithPadding,get_scheduler
 import transformers
 
 import numpy as np
@@ -43,12 +43,16 @@ class Trainer():
     def train(self):
         dl = self.dataset.train
         optimizer = torch.optim.AdamW(self.model.parameters(), lr=self.lr)
+        lr_scheduler = get_scheduler(name="linear", 
+                             optimizer=optimizer, 
+                             num_warmup_steps=0, 
+                             num_training_steps=self.epochs*len(dl))
         loss = torch.nn.CrossEntropyLoss()
         loss_sum = 0
 
         self.model.train()
 
-        for epoch in tqdm(range(self.epoch)):
+        for epoch in tqdm(range(self.epochs)):
             for i, batch in tqdm(enumerate(dl)):
                 optimizer.zero_grad()
                 batch = {k: v.to(self.device) for k, v in batch.items()}
@@ -58,6 +62,7 @@ class Trainer():
                 loss_sum += loss.item()
                 loss.backward()
                 optimizer.step()
+                lr_scheduler.step()
 
                 if (i+1) % self.eval_steps == 0:
                     f1, dev_loss = self.eval(split='eval')
