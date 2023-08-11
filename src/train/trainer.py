@@ -46,10 +46,9 @@ class Trainer():
         loss = torch.nn.CrossEntropyLoss()
         loss_sum = 0
 
-        no_steps = self.epochs * (len(dl))/self.batch_size
         self.model.train()
 
-        for step in tqdm(no_steps):
+        for epoch in tqdm(range(self.epoch)):
             for i, batch in tqdm(enumerate(dl)):
                 optimizer.zero_grad()
                 batch = {k: v.to(self.device) for k, v in batch.items()}
