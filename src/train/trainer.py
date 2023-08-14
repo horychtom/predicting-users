@@ -102,7 +102,7 @@ class TrainerWrapper():
         self.dataset = dataset
         self.data_collator = DataCollatorWithPadding(
             tokenizer=self.tokenizer)
-        self.trainer = Trainer(model,
+        self.trainer = Trainer(self.model,
                                training_args,
                                train_dataset=self.dataset.train,
                                eval_dataset=self.dataset.dev,
