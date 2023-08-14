@@ -4,7 +4,7 @@ from transformers import AutoModel
 import torch
 
 
-class CustomModel(nn.Module):
+class RegressionModel(nn.Module):
     """Torch-based module."""
 
     def __init__(self):
@@ -17,7 +17,6 @@ class CustomModel(nn.Module):
 
     def forward(self, input_ids, attention_mask, labels):
         """Pass the data through the model and according head decided from heads dict."""
-        # pass through the model
         x_enc = self.language_model(
             input_ids=input_ids, attention_mask=attention_mask).pooler_output
         out = self.regressor(x_enc)
@@ -38,9 +37,3 @@ class HFmodel():
         self.device = torch.device(
             "cuda") if torch.cuda.is_available() else torch.device("cpu")
         self.model.to(self.device)
-
-    def eval(self, eval_=True):
-        if eval_:
-            self.model.eval()
-        else:
-            self.model.train()

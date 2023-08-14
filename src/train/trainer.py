@@ -3,26 +3,22 @@ import logging
 import torch
 import wandb
 
-
+from torch.utils.data import DataLoader
 from datasets import load_metric
-from transformers import DataCollatorWithPadding,get_scheduler
+from transformers import DataCollatorWithPadding, get_scheduler, Trainer
 import transformers
 
 import numpy as np
 
 from tqdm.auto import tqdm
 
-
 transformers.logging.set_verbosity(transformers.logging.ERROR)
-
 logging.disable(logging.ERROR)
 np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
 
-BATCH_SIZE = 64
 
-
-class Trainer():
+class CustomTrainer():
 
     def __init__(self, training_args, dataset, model):
         self.lr = training_args['lr']
@@ -43,10 +39,10 @@ class Trainer():
     def train(self):
         dl = self.dataset.train
         optimizer = torch.optim.AdamW(self.model.parameters(), lr=self.lr)
-        lr_scheduler = get_scheduler(name="linear", 
-                             optimizer=optimizer, 
-                             num_warmup_steps=0, 
-                             num_training_steps=self.epochs*len(dl))
+        lr_scheduler = get_scheduler(name="linear",
+                                     optimizer=optimizer,
+                                     num_warmup_steps=0,
+                                     num_training_steps=self.epochs*len(dl))
         loss = torch.nn.CrossEntropyLoss()
         loss_sum = 0
 
@@ -94,3 +90,52 @@ class Trainer():
                               references=batch["labels"])
 
         return metric1.compute(average='macro')['f1'], loss_sum/(self.batch_size*len(dl))
+
+
+class TrainerWrapper():
+
+    def __init__(self, training_args, dataset, model):
+        self.training_args = training_args
+        self.tokenizer = model.tokenizer
+        self.device = model.device
+        self.model = model.model
+        self.dataset = dataset
+        self.data_collator = DataCollatorWithPadding(
+            tokenizer=self.tokenizer)
+        self.trainer = Trainer(model,
+                               training_args,
+                               train_dataset=self.dataset.train,
+                               eval_dataset=self.dataset.dev,
+                               data_collator=self.data_collator,
+                               tokenizer=self.tokenizer,
+                               compute_metrics=self.compute_metrics)
+
+    def train(self):
+        self.model.train()
+        self.trainer.train()
+        wandb.log({"training": 0})
+
+    def compute_metrics(self, dl):
+        metric1 = load_metric("f1")
+
+        loss_sum = 0
+        self.model.eval()
+        for batch in dl:
+            batch = {k: v.to(self.model.device) for k, v in batch.items()}
+            with torch.no_grad():
+                outputs = self.model(**batch)
+
+            logits = outputs.logits
+            loss_sum += outputs.loss.item()
+            predictions = torch.argmax(logits, dim=-1)
+            metric1.add_batch(predictions=predictions,
+                              references=batch["labels"])
+
+        self.model.train()
+
+        return {'f1': metric1.compute(average='macro')['f1']}
+
+    def eval_test(self):
+        dl = DataLoader(
+            self.dataset.test, batch_size=self.training_args.per_device_eval_batch_size, collate_fn=self.data_collator)
+        wandb.log({'test_f1': self.compute_metrics(dl=dl)})

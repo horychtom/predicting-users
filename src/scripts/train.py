@@ -1,18 +1,34 @@
 from config import WANDB_API_KEY
-from src.train.trainer import Trainer
+from src.train.trainer import TrainerWrapper
 from src.model.model import HFmodel
 from src.data.dataset import DataSet
 import wandb
 
-training_args = {'lr': 4e-5, 'epochs': 3,
-                 'warmup': 10, 'batch_size': 2, 'eval_steps': 20, 'logging_steps': 10}
+from transformers import TrainingArguments
+
+
+training_args = TrainingArguments(
+    report_to='wandb',
+    output_dir='./',
+    overwrite_output_dir=True,
+    num_train_epochs=3,
+    per_device_train_batch_size=32,
+    per_device_eval_batch_size=32,
+    do_eval=True,
+    evaluation_strategy='steps',
+    logging_steps=10,
+    eval_steps=25,
+    disable_tqdm=False,
+    weight_decay=0.1,
+    warmup_steps=10,
+    learning_rate=4e-5,
+    run_name='novy_run')
 
 wandb.login(key=WANDB_API_KEY)
-wandb.init(project="framework-test", name="test1")
+wandb.init(project="frameworkie", name="test1")
 
-model = HFmodel(checkpoint='distilbert-base-multilingual-cased')
+model = HFmodel(checkpoint='xlm-roberta-base')
 ds = DataSet('./datasets/binarized.csv', model.tokenizer,
-             {'seo_title': 'text', 'total_pageviews': 'labels'})
-trainer = Trainer(training_args=training_args, dataset=ds, model=model)
-model = trainer.train()
+             {'text': 'text', 'label': 'labels'},use_dataloaders=False)
+trainer = TrainerWrapper(training_args=training_args, dataset=ds, model=model)
 wandb.finish()
