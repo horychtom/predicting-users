@@ -2,6 +2,7 @@ import warnings
 import logging
 import torch
 import wandb
+from config import WANDB_API_KEY
 
 from torch.utils.data import DataLoader
 from datasets import load_metric
@@ -95,7 +96,9 @@ class CustomTrainer():
 
 class TrainerWrapper():
 
-    def __init__(self, training_args, dataset, model):
+    def __init__(self, training_args, dataset, model,project_name,run_name):
+        wandb.login(key=WANDB_API_KEY)
+        wandb.init(project=project_name, name=run_name)
         self.training_args = training_args
         self.tokenizer = model.tokenizer
         self.device = model.device
@@ -117,7 +120,7 @@ class TrainerWrapper():
         wandb.log({"training": 0})
 
     def compute_metrics(self, eval_preds):
-        predictions = eval_preds.predictions.argmax(dim=1)
+        predictions = eval_preds.predictions.argmax(axis=1)
         truth = eval_preds.label_ids
         return {'f1': f1_score(truth, predictions, average='macro')}
 
@@ -145,3 +148,4 @@ class TrainerWrapper():
         dl = DataLoader(
             self.dataset.test, batch_size=self.training_args.per_device_eval_batch_size, collate_fn=self.data_collator)
         wandb.log({'test_f1': self.compute_metrics_deprecated(dl=dl)})
+        wandb.finish()
