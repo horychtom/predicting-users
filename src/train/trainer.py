@@ -9,6 +9,7 @@ from transformers import DataCollatorWithPadding, get_scheduler, Trainer
 import transformers
 
 import numpy as np
+from sklearn.metrics import f1_score
 
 from tqdm.auto import tqdm
 
@@ -115,7 +116,12 @@ class TrainerWrapper():
         self.trainer.train()
         wandb.log({"training": 0})
 
-    def compute_metrics(self, dl):
+    def compute_metrics(self, eval_preds):
+        predictions = eval_preds.predictions.argmax(dim=1)
+        truth = eval_preds.label_ids
+        return {'f1': f1_score(truth, predictions, average='macro')}
+
+    def compute_metrics_deprecated(self, dl):
         metric1 = load_metric("f1")
 
         loss_sum = 0
@@ -138,4 +144,4 @@ class TrainerWrapper():
     def eval_test(self):
         dl = DataLoader(
             self.dataset.test, batch_size=self.training_args.per_device_eval_batch_size, collate_fn=self.data_collator)
-        wandb.log({'test_f1': self.compute_metrics(dl=dl)})
+        wandb.log({'test_f1': self.compute_metrics_deprecated(dl=dl)})
