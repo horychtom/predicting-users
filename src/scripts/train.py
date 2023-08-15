@@ -25,7 +25,7 @@ training_args = TrainingArguments(
     run_name='something')
 
 
-model = HFmodel(checkpoint='xlm-roberta-base')
+model = HFmodel(checkpoint='xlm-roberta-base',num_classes=3)
 ds = DataSet('datasets/babe.csv', model.tokenizer,
              {'text': 'text', 'label': 'labels'}, use_dataloaders=False)
 trainer = TrainerWrapper(training_args=training_args, dataset=ds, model=model,
