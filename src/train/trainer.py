@@ -5,13 +5,14 @@ import wandb
 from config import WANDB_API_KEY, RANDOM_SEED
 from src.myutils import set_random_seed
 
+
 from torch.utils.data import DataLoader
 from datasets import load_metric
 from transformers import DataCollatorWithPadding, get_scheduler, Trainer
 import transformers
 
 import numpy as np
-from sklearn.metrics import f1_score
+from sklearn.metrics import f1_score, mean_squared_error, r2_score
 
 from tqdm.auto import tqdm
 
@@ -97,12 +98,13 @@ class CustomTrainer():
 
 class TrainerWrapper():
 
-    def __init__(self, training_args, dataset, model,project_name,run_name):
+    def __init__(self, training_args, dataset, model, project_name, run_name):
         wandb.login(key=WANDB_API_KEY)
         wandb.init(project=project_name, name=run_name)
         self.training_args = training_args
         self.tokenizer = model.tokenizer
         self.device = model.device
+        self.num_classes = model.num_classes
         self.model = model.model
         self.dataset = dataset
         self.data_collator = DataCollatorWithPadding(
@@ -121,9 +123,16 @@ class TrainerWrapper():
         wandb.log({"training": 0})
 
     def compute_metrics(self, eval_preds):
-        predictions = eval_preds.predictions.argmax(axis=1)
-        truth = eval_preds.label_ids
-        return {'f1': f1_score(truth, predictions, average='macro')}
+        predictions = eval_preds.predictions
+        targets = eval_preds.label_ids
+
+        if self.num_classes == 1:  # regression
+            rmse = mean_squared_error(targets, predictions, squared=False)
+            r2 = r2_score(targets, predictions)
+            return {"rmse": rmse, "r2": r2}
+
+        predictions = predictions.argmax(axis=1)
+        return {'f1': f1_score(targets, predictions, average='macro')}
 
     def compute_metrics_deprecated(self, dl):
         metric1 = load_metric("f1")

@@ -30,6 +30,7 @@ class HFmodel():
     def __init__(self, checkpoint='xlm-roberta-base',num_classes=2) -> None:
         super().__init__()
         self.checkpopint = checkpoint
+        self.num_classes=num_classes
         self.model = AutoModelForSequenceClassification.from_pretrained(
             checkpoint,num_labels=num_classes)
         self.tokenizer = AutoTokenizer.from_pretrained(checkpoint)
