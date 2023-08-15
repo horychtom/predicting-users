@@ -31,7 +31,7 @@ class HFmodel():
         super().__init__()
         self.checkpopint = checkpoint
         self.model = AutoModelForSequenceClassification.from_pretrained(
-            checkpoint)
+            checkpoint,num_labels=5)
         self.tokenizer = AutoTokenizer.from_pretrained(checkpoint)
 
         self.device = torch.device(
