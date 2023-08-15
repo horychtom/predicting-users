@@ -13,3 +13,5 @@ GCP_STORAGE_SERVICE_ACCOUNT["private_key"] = os.getenv(
     "GCP_PRIV", "").replace("\\n", "\n")
 GCP_BUCKET_NAME = os.getenv("BUCKET_NAME")
 WANDB_API_KEY = os.getenv("WANDB_API_KEY")
+
+RANDOM_SEED=321

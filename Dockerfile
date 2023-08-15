@@ -6,4 +6,4 @@ COPY src /src
 
 RUN pip install -r requirements.txt
 
-ENTRYPOINT ["python3","src/train/train_script.py"]
+ENTRYPOINT ["python3","src/scripts/train.py"]

@@ -29,6 +29,6 @@ model = HFmodel(checkpoint='xlm-roberta-base')
 ds = DataSet('datasets/babe.csv', model.tokenizer,
              {'text': 'text', 'label': 'labels'}, use_dataloaders=False)
 trainer = TrainerWrapper(training_args=training_args, dataset=ds, model=model,
-                         project_name="spiegel_testing", run_name=training_args.run_name)
+                         project_name="gcloud_testing", run_name=training_args.run_name)
 trainer.train()
 wandb.finish()

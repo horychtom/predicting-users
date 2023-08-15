@@ -2,7 +2,8 @@ import warnings
 import logging
 import torch
 import wandb
-from config import WANDB_API_KEY
+from config import WANDB_API_KEY, RANDOM_SEED
+from myutils import set_random_seed
 
 from torch.utils.data import DataLoader
 from datasets import load_metric

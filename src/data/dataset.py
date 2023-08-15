@@ -4,6 +4,7 @@ from transformers import DataCollatorWithPadding
 from torch.utils.data import DataLoader
 import os
 from src.storage import storage_client
+from config import RANDOM_SEED
 
 
 class DataSet():
@@ -30,7 +31,7 @@ class DataSet():
     def split_dataset(self, use_dataloaders=False):
         dataset = self.tok
         dataset['labels'] = self.df['labels']
-        dataset = dataset.sample(frac=1)
+        dataset = dataset.sample(frac=1,random_state=RANDOM_SEED)
 
         train = Dataset.from_dict(dataset[:int(len(dataset)*0.7)])
         dev = Dataset.from_dict(
