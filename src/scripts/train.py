@@ -11,9 +11,9 @@ training_args = TrainingArguments(
     report_to='wandb',
     output_dir='./',
     overwrite_output_dir=True,
-    num_train_epochs=3,
-    per_device_train_batch_size=2,
-    per_device_eval_batch_size=2,
+    num_train_epochs=5,
+    per_device_train_batch_size=64,
+    per_device_eval_batch_size=64,
     do_eval=True,
     evaluation_strategy='steps',
     logging_steps=20,
@@ -25,7 +25,7 @@ training_args = TrainingArguments(
     run_name='something')
 
 
-model = HFmodel(checkpoint='xlm-roberta-base',num_classes=1)
+model = HFmodel(checkpoint='xlm-roberta-base',num_classes=3)
 ds = DataSet('datasets/three_classes_all.csv', model.tokenizer,
              {'seo_title': 'text', 'total_pageviews': 'labels'}, use_dataloaders=False)
 trainer = TrainerWrapper(training_args=training_args, dataset=ds, model=model,
