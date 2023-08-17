@@ -3,7 +3,8 @@ from src.train.trainer import TrainerWrapper
 from src.model.model import HFmodel
 from src.data.dataset import DataSet
 import wandb
-
+import gc
+import torch
 from transformers import TrainingArguments
 
 
@@ -12,8 +13,8 @@ training_args = TrainingArguments(
     output_dir='./',
     overwrite_output_dir=True,
     num_train_epochs=10,
-    per_device_train_batch_size=64,
-    per_device_eval_batch_size=64,
+    per_device_train_batch_size=32,
+    per_device_eval_batch_size=32,
     do_eval=True,
     evaluation_strategy='steps',
     logging_steps=20,
@@ -26,14 +27,6 @@ training_args = TrainingArguments(
 
 
 # FREE
-training_args.run_name = 'all_free_sampled'
-model = HFmodel(checkpoint='xlm-roberta-base',num_classes=3)
-ds = DataSet('datasets/all_free_sampled.csv', model.tokenizer,
-             {'seo_title': 'text', 'y_disc': 'labels'}, use_dataloaders=False)
-trainer = TrainerWrapper(training_args=training_args, dataset=ds, model=model,
-                         project_name="testing_data_modelling", run_name=training_args.run_name)
-trainer.train()
-wandb.finish()
 
 training_args.run_name = 'all_free_sampled_merged'
 model = HFmodel(checkpoint='xlm-roberta-base',num_classes=3)
@@ -44,6 +37,9 @@ trainer = TrainerWrapper(training_args=training_args, dataset=ds, model=model,
 trainer.train()
 wandb.finish()
 
+torch.cuda.empty_cache()
+gc.collect()
+
 training_args.run_name = 'all_paid_sampled'
 model = HFmodel(checkpoint='xlm-roberta-base',num_classes=3)
 ds = DataSet('datasets/all_paid_sampled.csv', model.tokenizer,
@@ -53,6 +49,9 @@ trainer = TrainerWrapper(training_args=training_args, dataset=ds, model=model,
 trainer.train()
 wandb.finish()
 
+torch.cuda.empty_cache()
+gc.collect()
+
 training_args.run_name = 'all_paid_sampled_merged'
 model = HFmodel(checkpoint='xlm-roberta-base',num_classes=3)
 ds = DataSet('datasets/all_paid_sampled.csv', model.tokenizer,
@@ -61,3 +60,6 @@ trainer = TrainerWrapper(training_args=training_args, dataset=ds, model=model,
                          project_name="testing_data_modelling", run_name=training_args.run_name)
 trainer.train()
 wandb.finish()
+
+torch.cuda.empty_cache()
+gc.collect()
