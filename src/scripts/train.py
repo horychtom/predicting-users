@@ -26,18 +26,18 @@ training_args = TrainingArguments(
 
 
 # regression on titles
-training_args.run_name = 'all_all_clf'
+training_args.run_name = 'all_all_clf_sampled'
 model = HFmodel(checkpoint='xlm-roberta-base',num_classes=3)
-ds = DataSet('datasets/all_all.csv', model.tokenizer,
+ds = DataSet('datasets/all_all_sampled.csv', model.tokenizer,
              {'seo_title': 'text', 'y_disc': 'labels'}, use_dataloaders=False)
 trainer = TrainerWrapper(training_args=training_args, dataset=ds, model=model,
                          project_name="testing_data_modelling", run_name=training_args.run_name)
 trainer.train()
 wandb.finish()
 
-training_args.run_name = 'all_all_clf_merged'
+training_args.run_name = 'all_all_clf_merged_sampled'
 model = HFmodel(checkpoint='xlm-roberta-base',num_classes=3)
-ds = DataSet('datasets/all_all.csv', model.tokenizer,
+ds = DataSet('datasets/all_all_sampled.csv', model.tokenizer,
              {'merged': 'text', 'y_disc': 'labels'}, use_dataloaders=False)
 trainer = TrainerWrapper(training_args=training_args, dataset=ds, model=model,
                          project_name="testing_data_modelling", run_name=training_args.run_name)
