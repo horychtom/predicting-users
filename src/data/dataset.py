@@ -26,7 +26,7 @@ class DataSet():
         return pd.read_csv(path_to_csv)
 
     def tokenize_data(self):
-        return pd.DataFrame(dict(self.tokenizer(list(self.df['text']), truncation=True, padding=True, max_length=128)))
+        return pd.DataFrame(dict(self.tokenizer(list(self.df['text']), truncation=True, padding=True, max_length=512)))
 
     def split_dataset(self, use_dataloaders=False):
         dataset = self.tok
