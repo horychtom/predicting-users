@@ -28,9 +28,9 @@ training_args = TrainingArguments(
 
 # FREE
 
-training_args.run_name = 'all_free_sampled_merged'
-model = HFmodel(checkpoint='xlm-roberta-base',num_classes=3)
-ds = DataSet('datasets/all_free_sampled.csv', model.tokenizer,
+training_args.run_name = 'lowhigh_free'
+model = HFmodel(checkpoint='xlm-roberta-base',num_classes=2)
+ds = DataSet('datasets/lowhigh_free.csv', model.tokenizer,
              {'merged': 'text', 'y_disc': 'labels'}, use_dataloaders=False)
 trainer = TrainerWrapper(training_args=training_args, dataset=ds, model=model,
                          project_name="testing_data_modelling", run_name=training_args.run_name)
@@ -40,26 +40,11 @@ wandb.finish()
 torch.cuda.empty_cache()
 gc.collect()
 
-training_args.run_name = 'all_paid_sampled'
-model = HFmodel(checkpoint='xlm-roberta-base',num_classes=3)
-ds = DataSet('datasets/all_paid_sampled.csv', model.tokenizer,
+training_args.run_name = 'lowhigh_free_merged'
+model = HFmodel(checkpoint='xlm-roberta-base',num_classes=2)
+ds = DataSet('datasets/lowhigh_free.csv', model.tokenizer,
              {'seo_title': 'text', 'y_disc': 'labels'}, use_dataloaders=False)
 trainer = TrainerWrapper(training_args=training_args, dataset=ds, model=model,
                          project_name="testing_data_modelling", run_name=training_args.run_name)
 trainer.train()
 wandb.finish()
-
-torch.cuda.empty_cache()
-gc.collect()
-
-training_args.run_name = 'all_paid_sampled_merged'
-model = HFmodel(checkpoint='xlm-roberta-base',num_classes=3)
-ds = DataSet('datasets/all_paid_sampled.csv', model.tokenizer,
-             {'merged': 'text', 'y_disc': 'labels'}, use_dataloaders=False)
-trainer = TrainerWrapper(training_args=training_args, dataset=ds, model=model,
-                         project_name="testing_data_modelling", run_name=training_args.run_name)
-trainer.train()
-wandb.finish()
-
-torch.cuda.empty_cache()
-gc.collect()
