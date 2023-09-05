@@ -45,24 +45,20 @@ class ModelInference:
 
     def classify_sentence(self,inputs):
         dl = DataLoader(inputs, batch_size=128, collate_fn=self.collator)
-
         outputs = []
         for batch in dl:
             with torch.no_grad():
-                batch.to(self.device)
+                # batch.to(self.device)
                 model_output = self.model(input_ids=batch["input_ids"], attention_mask=batch["attention_mask"])
-                outputs.extend(F.softmax(model_output.logits,dim=1)[:,1].tolist())
+                # outputs.extend(F.softmax(model_output.logits,dim=1)[:,1].tolist())
+                return model_output.logits[0].item()
                 # outputs.extend(F.softmax(model_output.logits,dim=1).argmax(dim=1).tolist())
 
         return outputs
 
     def classify_body(self,body,id):
-        sents = sent_tokenize(body)
-        annotations = self.classify_sentence(list(map(self.tokenize,sents)))
-        l = []
-        for i in range(len(sents)):
-            l.append({'id':id,'text':sents[i],'bias':annotations[i]})
-        return l
+        annotations = self.classify_sentence([self.tokenize(body)])
+        return {'id':id,'text':body,'complexity':annotations}
 
 
 
@@ -74,7 +70,7 @@ mi = ModelInference()
 rowlist=[]
 from tqdm import tqdm
 for idx,row in tqdm(df.iterrows()):
-    rowlist.extend(mi.classify_body(row.seo_title,row.id))
+    rowlist.append(mi.classify_body(row.seo_title,row.id))
 imd = pd.DataFrame(rowlist)
 imd.to_csv('datasets/complexity2.csv')
 
