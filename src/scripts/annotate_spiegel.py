@@ -48,7 +48,7 @@ class ModelInference:
         outputs = []
         for batch in dl:
             with torch.no_grad():
-                # batch.to(self.device)
+                batch.to(self.device)
                 model_output = self.model(input_ids=batch["input_ids"], attention_mask=batch["attention_mask"])
                 # outputs.extend(F.softmax(model_output.logits,dim=1)[:,1].tolist())
                 return model_output.logits[0].item()
