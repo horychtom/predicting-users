@@ -72,6 +72,6 @@ from tqdm import tqdm
 for idx,row in tqdm(df.iterrows()):
     rowlist.append(mi.classify_body(row.seo_title,row.id))
 imd = pd.DataFrame(rowlist)
-imd.to_csv('datasets/complexity2.csv')
+imd.to_csv('datasets/sento2.csv')
 
-storage_client.upload_local_directory_or_file_to_gcs('datasets/complexity2.csv', 'datasets/complexity2.csv')
+storage_client.upload_local_directory_or_file_to_gcs('datasets/sento2.csv', 'datasets/sento2.csv')
