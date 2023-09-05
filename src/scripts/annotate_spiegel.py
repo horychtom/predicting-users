@@ -20,8 +20,8 @@ tqdm.pandas()
 # Load model directly
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
-tokenizer = AutoTokenizer.from_pretrained("MiriUll/distilbert-german-text-complexity")
-model = AutoModelForSequenceClassification.from_pretrained("MiriUll/distilbert-german-text-complexity")
+tokenizer = AutoTokenizer.from_pretrained("oliverguhr/german-sentiment-bert")
+model = AutoModelForSequenceClassification.from_pretrained("oliverguhr/german-sentiment-bert")
 
 device = torch.device("cuda")
 model.to(device)
@@ -50,8 +50,8 @@ class ModelInference:
             with torch.no_grad():
                 batch.to(self.device)
                 model_output = self.model(input_ids=batch["input_ids"], attention_mask=batch["attention_mask"])
-                # outputs.extend(F.softmax(model_output.logits,dim=1)[:,1].tolist())
-                return model_output.logits[0].item()
+                return F.softmax(model_output.logits,dim=1).argmax(dim=1).item()
+                # return model_output.logits[0].item()
                 # outputs.extend(F.softmax(model_output.logits,dim=1).argmax(dim=1).tolist())
 
         return outputs
