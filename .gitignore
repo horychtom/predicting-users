@@ -3,5 +3,5 @@ local.env
 *.log
 /wandb
 *.csv
-*.png
+images*
 gcp-service-account.json

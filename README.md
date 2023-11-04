@@ -3,11 +3,7 @@
 ## Overview
 
 The primary goal of this project is to build a robust predictive model that estimates user engagement by analyzing the content of articles. Employing a blend of regression and classification training approaches allows the model to understand and predict user interaction levels based on the article's content.
-
-
-## Code Structure
-
-The codebase is organized as follows:
+![](src/performance_track.png)
 
 ### Source Code (`src/`)
 
