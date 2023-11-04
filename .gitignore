@@ -4,3 +4,4 @@ local.env
 /wandb
 *.csv
 *.png
+gcp-service-account.json
