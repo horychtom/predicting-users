@@ -1,4 +1,4 @@
 python-dotenv==0.21.0
-transformers==4.25.1
+transformers==4.50.0
 datasets==2.10.1
 wandb==0.13.6
